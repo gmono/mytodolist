@@ -8,11 +8,14 @@ import {
   mergeStyleSets,
   mergeStyles
 } from "@fluentui/react";
+import { useDynamicList } from "ahooks";
 import dayjs from "dayjs";
 import { useLocalStore, useObserver } from "mobx-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useHistory } from "react-router";
-import { useMainStore } from "./Data";
+import { addList, getAllList } from "./Apis";
+import { constructClass } from "./common";
+import { ListInfo, useMainStore } from "./Data";
 
 const theme = getTheme();
 const { palette } = theme;
@@ -21,11 +24,17 @@ const { palette } = theme;
  * 路径/
  */
 export function MainPlane() {
-  const inputref = useRef<HTMLInputElement>();
   const mainstore = useMainStore();
   const store = useLocalStore(() => ({
     nowEditingList: ""
   }));
+  const list = useDynamicList([]);
+  function refresh() {
+    getAllList().then((v) => {
+      list.resetList(v);
+    });
+  }
+  useEffect(refresh, []);
   if (mainstore.nowListID != null) {
     mainstore.leaveList();
   }
@@ -42,7 +51,7 @@ export function MainPlane() {
       </div>
       <Stack tokens={{ childrenGap: 20 }}>
         <List
-          items={mainstore.lists.toArray()}
+          items={list.list}
           onRenderCell={(v, idx) => (
             <div key={idx} onClick={() => mainstore.enterList(v.id)}>
               <div>{v.name}</div>
@@ -64,8 +73,14 @@ export function MainPlane() {
           {/* <Button primary={false}>CESHI</Button> */}
           <PrimaryButton
             onClick={() => {
-              mainstore.addList(store.nowEditingList);
-              store.nowEditingList = "";
+              addList(
+                constructClass(ListInfo, {
+                  name: store.nowEditingList
+                })
+              ).then(() => {
+                store.nowEditingList = "";
+                refresh();
+              });
             }}
           >
             添加
