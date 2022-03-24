@@ -7,6 +7,8 @@ import { Timer } from "./temp";
 import { List } from "immutable";
 import { IDXDB } from "./database";
 import { addItem, getItem, updateItem } from "./Apis";
+import store from "store2";
+
 /**
  * 不保存实际数据只是用来显示的
  */
@@ -195,7 +197,13 @@ class MainStore {
 }
 //配置
 const mainstore = new MainStore();
-
+const data = store.get("mainstore");
+if (data) {
+  Object.assign(mainstore, data);
+}
+autorun(() => {
+  store.set("mainstore", mainstore);
+});
 //上下文
 const context = createContext<MainStore>(null);
 export function MainContainer({ children }) {

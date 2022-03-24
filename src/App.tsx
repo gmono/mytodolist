@@ -34,6 +34,9 @@ import { TaskItem, useMainStore } from "./Data";
 import { MainPlane } from "./MainPlane";
 import { ItemsPalne } from "./ItemsPalne";
 import styles from "styled-components";
+
+import img from "./assets/ok.gif";
+
 //导入fluentui
 // import { PrimaryButton, Button } from "@fluentui/react";
 
@@ -150,11 +153,16 @@ export default function App() {
   return useObserver(() => (
     <div
       className="App"
-      style={{ display: "flex", alignItems: "stretch", height: "100vh" }}
+      style={{
+        display: "flex",
+        alignItems: "stretch",
+        height: "100vh"
+        // overflow: "hidden"
+      }}
     >
       {mainstore.nowListID == null ? <MainPlane /> : <ItemsPalne />}
       {/* 侧边栏 用来显示用户头像和工具栏 */}
-      <SideBar />
+      {/* <SideBar /> */}
     </div>
   ));
 }

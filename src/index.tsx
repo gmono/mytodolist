@@ -7,7 +7,7 @@ import { value, validate, TypeDef, TypeOf } from "ts-metatype";
 import { binding, pack } from "react-binding-value";
 import { MainContainer } from "./Data";
 import App from "./App";
-
+import "animate.css";
 const rootElement = document.getElementById("root");
 render(
   <MainContainer>

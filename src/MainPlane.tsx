@@ -11,7 +11,7 @@ import {
 import { useDynamicList } from "ahooks";
 import dayjs from "dayjs";
 import { useLocalStore, useObserver } from "mobx-react";
-import { useEffect, useRef } from "react";
+import { CSSProperties, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
 import { addList, getAllList } from "./Apis";
 import { constructClass } from "./common";
@@ -19,6 +19,43 @@ import { ListInfo, useMainStore } from "./Data";
 
 const theme = getTheme();
 const { palette } = theme;
+
+function ListCell({
+  item,
+  onClick,
+  state,
+  className
+}: {
+  item: ListInfo;
+  onClick: () => void;
+  state: string;
+  className: string;
+}) {
+  const v = item;
+  return (
+    <div
+      onClick={() => onClick()}
+      className={`${mergeStyles({
+        borderRadius: "10px",
+        padding: "16px",
+        background: state == "执行中" ? "#00aa0033" : "white",
+        boxShadow: getTheme().semanticColors.cardShadow,
+        paddingLeft: 20,
+        "&:hover": {
+          boxShadow: getTheme().semanticColors.cardShadowHovered
+        } as CSSProperties,
+        "& *": {
+          cursor: "pointer",
+          userSelect: "none"
+        } as CSSProperties
+      })} ${className}`}
+    >
+      <h3>{v.name}</h3>
+      <div>{dayjs(v.pushTime).format("YYYY-MM-DD HH:mm:ss")}</div>
+      <div>{state}</div>
+    </div>
+  );
+}
 /**
  * 主页 显示个人信息和列表
  * 路径/
@@ -49,14 +86,20 @@ export function MainPlane() {
       <div className={mergeStyles(theme.fonts.xxLarge, { textAlign: "left" })}>
         任务列表
       </div>
-      <Stack tokens={{ childrenGap: 20 }}>
+      <Stack tokens={{ childrenGap: 20 }} style={{ marginTop: 30 }}>
         <List
+          style={{ maxHeight: "80vh" }}
           items={list.list}
           onRenderCell={(v, idx) => (
-            <div key={idx} onClick={() => mainstore.enterList(v.id)}>
-              <div>{v.name}</div>
-              <div>{dayjs(v.pushTime).format()}</div>
-            </div>
+            <ListCell
+              state="未完成"
+              className={mergeStyles({
+                marginTop: 20
+              })}
+              key={idx}
+              onClick={() => mainstore.enterList(v.id)}
+              item={v}
+            ></ListCell>
           )}
         />
         <Stack horizontal tokens={{ childrenGap: 10 }}>
