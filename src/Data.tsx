@@ -67,6 +67,7 @@ type RunningState = "ready" | "running" | "paused" | "stopped";
 class MainStore {
   constructor() {
     makeAutoObservable(this);
+    this.timerInit();
   }
 
   //全局应用状态
@@ -92,6 +93,10 @@ class MainStore {
   //当前正在执行的事项 定义为
   public nowExecutingItemId: string = null;
   public nowExecutingItem = null as TaskItem;
+  public async refreshItemInfo() {
+    //重新加载item信息
+    this.nowExecutingItem = await getItem(this.nowExecutingItemId);
+  }
 
   //执行状态
   public executingState = {
@@ -101,14 +106,17 @@ class MainStore {
     //表示开始执行的时间
     startTime: null as Date
   };
+
+  private timerInit() {
+    timer.on("tick", () => {
+      this.executingState.time++;
+    });
+  }
   /**
    * 计时部分
    */
   private start() {
     timer.interval = 1000;
-    timer.on("tick", () => {
-      this.executingState.time++;
-    });
     timer.start();
     this.executingState.state = "running";
   }
@@ -119,6 +127,27 @@ class MainStore {
   private stop() {
     this.executingState.state = "stopped";
     timer.stopAndInit();
+  }
+  /**
+   * 从存储中恢复状态
+   */
+  public restoreState() {
+    //还原状态 特别是计时器状态
+    //从本地存储
+    const data = store.get("mainstore");
+    if (data) {
+      Object.assign(this, data);
+    }
+    //查看计时器是否正在计时，如果是 启动timer并继续
+    if (this.executingState.state != "ready") {
+      //这里继续计时
+      if ((this, this.executingState.state == "running")) {
+        this.start();
+      } else if (this.executingState.state == "paused") {
+        timer.start();
+        timer.pause();
+      }
+    }
   }
   /**
    * 把执行状态恢复
@@ -197,10 +226,7 @@ class MainStore {
 }
 //配置
 const mainstore = new MainStore();
-const data = store.get("mainstore");
-if (data) {
-  Object.assign(mainstore, data);
-}
+mainstore.restoreState();
 autorun(() => {
   store.set("mainstore", mainstore);
 });

@@ -88,7 +88,7 @@ export function MainPlane() {
       </div>
       <Stack tokens={{ childrenGap: 20 }} style={{ marginTop: 30 }}>
         <List
-          style={{ maxHeight: "80vh" }}
+          // style={{ maxHeight: "80vh" }}
           items={list.list}
           onRenderCell={(v, idx) => (
             <ListCell
@@ -102,7 +102,12 @@ export function MainPlane() {
             ></ListCell>
           )}
         />
-        <Stack horizontal tokens={{ childrenGap: 10 }}>
+        <Stack
+          horizontal
+          tokens={{ childrenGap: 10 }}
+          style={{ marginBottom: 24 }}
+        >
+          <div style={{ width: 24 }} />
           <Stack.Item grow>
             <TextField
               type="text"
